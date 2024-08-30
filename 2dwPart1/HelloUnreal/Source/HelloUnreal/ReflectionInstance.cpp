@@ -1,7 +1,10 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "ReflectionInstance.h"
+#include "Teacher.h"
+#include "Student.h"
+
+// 다른 헤더파일을 include 할 때에 자기 자신의 헤더파일이 가장 위에 있어야만 한다. -> 컴파일 시에 에러가 발생함
 
 // 헤더파일의 리플렉션 정보를 변경하거나 생성자코드에서 Class Default Object(CDO)의 기본값을 변경하는 경우 에디터를 종료하고 켜야 변경점 확인 가능하다 
 UReflectionInstance::UReflectionInstance()
@@ -34,4 +37,54 @@ void UReflectionInstance::Init()
 	UE_LOG(LogTemp, Log, TEXT("학교 이름 기본값: %s"), *GetClass()->GetDefaultObject<UReflectionInstance>()->SchoolName);
 
 	UE_LOG(LogTemp, Log, TEXT("========================"));
+
+	// UClass는 NewObject로 생성 (New가 아니다)
+	UStudent* Student = NewObject<UStudent>();
+	UTeacher* Teacher = NewObject<UTeacher>();
+	Student->SetName(TEXT("학생3"));
+	UE_LOG(LogTemp, Log, TEXT("새로운 학생 이름: %s"),*Student->GetName());
+
+	// 리플렉션 기능을 통한 값 접근 방법
+	FProperty* nameProp = UTeacher::StaticClass()->FindPropertyByName(TEXT("Name")); // TEXT에 해당하는 속성(변수)를 찾는다.
+	FString CurrentTeacherName;
+	FString NewTeacherName = TEXT("새선생");
+	if (nameProp) 
+	{
+		nameProp->GetValue_InContainer(Teacher, &CurrentTeacherName);
+		UE_LOG(LogTemp, Log, TEXT("현재 선생님 이름: %s"),*CurrentTeacherName);
+
+		nameProp->SetValue_InContainer(Teacher, &NewTeacherName);
+		UE_LOG(LogTemp, Log, TEXT("새로운 선생님 이름: %s"), *Teacher->GetName());
+
+		nameProp->GetValue_InContainer(Teacher, &CurrentTeacherName);
+		UE_LOG(LogTemp, Log, TEXT("현재 선생님 이름: %s"), *CurrentTeacherName);
+	}
+
+	FProperty* nameProp2 = Teacher->GetClass()->FindPropertyByName(TEXT("Name"));
+	if (nameProp2)
+	{
+		nameProp2->GetValue_InContainer(Teacher, &CurrentTeacherName);
+		UE_LOG(LogTemp, Log, TEXT("현재 선생님 이름: %s"), *CurrentTeacherName);
+
+		nameProp2->SetValue_InContainer(Teacher, &NewTeacherName);
+		UE_LOG(LogTemp, Log, TEXT("새로운 선생님 이름: %s"), *Teacher->GetName());
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("========================"));
+
+	Student->DoLesson();
+
+	// 리플렉션 기능을 통한 함수 접근 방법
+	UFunction* DoLessonFunc = Teacher->GetClass()->FindFunctionByName(TEXT("DoLesson"));
+	UFunction* DoLessonFunc2 = UTeacher::StaticClass()->FindFunctionByName(TEXT("DoLesson"));
+	if (DoLessonFunc)
+	{
+		Teacher->ProcessEvent(DoLessonFunc, nullptr);
+
+
+	}
+	if (DoLessonFunc2)
+	{
+		Teacher->ProcessEvent(DoLessonFunc2, nullptr);
+	}
 }
