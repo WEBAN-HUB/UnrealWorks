@@ -5,6 +5,7 @@
 #include "Student.h"
 #include "Teacher.h"
 #include "Staff.h"
+#include "Card.h"
 
 UMyGameInstance::UMyGameInstance()
 {
@@ -36,6 +37,22 @@ void UMyGameInstance::Init()
 		else
 		{
 			UE_LOG(LogTemp, Log, TEXT("%s님은 수업에 참여할 수 없습니다."), *Person->GetName());
+		}
+	}
+	UE_LOG(LogTemp, Log, TEXT("=================================="));
+
+	for (const auto Person : Persons)
+	{
+		const UCard* OneCard = Person->GetCard();
+		check(OneCard);
+		ECardType CardType = OneCard->GetCardType();
+		//UE_LOG(LogTemp, Log, TEXT("%s님이 소유한 카드 종류 %d"), *Person->GetName(), CardType);
+
+		const UEnum* CardEnumType = FindObject<UEnum>(nullptr, TEXT("/Script/Unreal_Interface.ECardType"));
+		if (CardEnumType)
+		{
+			FString CardMetaData = CardEnumType->GetDisplayNameTextByValue((int64)CardType).ToString();
+			UE_LOG(LogTemp, Log, TEXT("%s님이 소유한 카드 종류 %s"), *Person->GetName(), *CardMetaData)
 		}
 	}
 	UE_LOG(LogTemp, Log, TEXT("=================================="));
