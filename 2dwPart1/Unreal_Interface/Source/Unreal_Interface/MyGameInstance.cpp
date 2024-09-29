@@ -6,14 +6,33 @@
 #include "Teacher.h"
 #include "Staff.h"
 #include "Card.h"
+#include "CourseInfo.h"
 
 UMyGameInstance::UMyGameInstance()
 {
+	SchoolName = TEXT("학교");
 }
 
 void UMyGameInstance::Init()
 {
 	Super::Init();
+
+	// 인자에 this를 넣어주면서 MyGameInstance가 CourseInfo의 Outer가 되었고 CourseInfo는 Subobject가 되었다.
+	CourseInfo = NewObject<UCourseInfo>(this);
+	UE_LOG(LogTemp, Log, TEXT("=================================="));
+
+	UStudent* Student1 = NewObject<UStudent>();
+	Student1->SetName(TEXT("학생1"));
+	UStudent* Student2 = NewObject<UStudent>();
+	Student2->SetName(TEXT("학생2"));
+	UStudent* Student3 = NewObject<UStudent>();
+	Student3->SetName(TEXT("학생3"));
+
+	CourseInfo->OnChanged.AddUObject(Student1,&UStudent::GetNotification);
+	CourseInfo->OnChanged.AddUObject(Student2, &UStudent::GetNotification);
+	CourseInfo->OnChanged.AddUObject(Student3, &UStudent::GetNotification);
+
+	CourseInfo->ChangeCourseInfo(SchoolName, TEXT("변경된 학사 정보"));
 
 	UE_LOG(LogTemp, Log, TEXT("=================================="));
 	TArray<UPerson*> Persons = { NewObject<UStudent>(), NewObject<UTeacher>(), NewObject<UStaff>()};

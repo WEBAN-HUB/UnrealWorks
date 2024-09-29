@@ -17,4 +17,12 @@ class UNREAL_INTERFACE_API UMyGameInstance : public UGameInstance
 public:
 	UMyGameInstance();
 	void Init();
+
+private:
+
+	UPROPERTY()
+	TObjectPtr<class UCourseInfo> CourseInfo;
+
+	UPROPERTY()
+	FString SchoolName;
 };
